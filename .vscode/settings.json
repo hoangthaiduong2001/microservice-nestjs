@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    ".husky/*": "shellscript"
+  },
+  "files.encoding": "utf8"
+}
