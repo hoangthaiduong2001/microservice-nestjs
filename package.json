@@ -51,11 +51,11 @@
     "webpack-cli": "^5.1.4"
   },
   "lint-staged": {
-    "*.{ts,js}": [
+    "*.{ts,tsx,js,jsx}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,md}": [
+    "*.{json,md,yml,yaml,html}": [
       "prettier --write"
     ]
   }
