@@ -17,6 +17,7 @@
     "baseUrl": ".",
     "paths": {
       "@common/constants/*": ["./libs/constants/src/lib/*"],
+      "@common/configuration/*": ["libs/configuration/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]
