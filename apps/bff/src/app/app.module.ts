@@ -1,3 +1,4 @@
+import { TCP_SERVICES, TcpProvider } from '@common/configuration/lib/tcp.config';
 import { ExceptionInterceptor } from '@common/interceptors/exception.interceptor';
 import { LoggerMiddleware } from '@common/middlewares/logger.middleware';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
@@ -11,13 +12,14 @@ import { AppService } from './app.service';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [() => CONFIGURATION] }),
-    ClientsModule.register([{ name: 'TCP_INVOICE_SERVICE', options: { host: 'localhost', port: 3301 } }]),
+    ClientsModule.registerAsync([TcpProvider(TCP_SERVICES.INVOICE_SERVICE)]),
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_INTERCEPTOR, useClass: ExceptionInterceptor }],
 })
 export class AppModule {
   static CONFIGURATION: TConfiguration = CONFIGURATION;
+
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
   }
