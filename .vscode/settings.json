@@ -1,4 +1,5 @@
 {
+  "explorer.excludeGitIgnore": false,
   "files.associations": {
     ".husky/*": "shellscript"
   },
