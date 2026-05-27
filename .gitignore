@@ -44,3 +44,5 @@ Thumbs.db
 # Claude AI
 .claude/
 CLAUDE.md
+
+docker/**/docker_data
