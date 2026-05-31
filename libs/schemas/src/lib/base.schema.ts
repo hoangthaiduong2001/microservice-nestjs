@@ -6,7 +6,11 @@ import { Schema } from 'mongoose';
 export class BaseSchema {
   _id: ObjectId;
 
-  @Virtual({ get: (doc) => doc._id.toString() })
+  @Virtual({
+    get: function (this: { _id?: ObjectId }) {
+      return this?._id?.toString();
+    },
+  })
   id: string;
 
   @Prop({ type: Date, default: Date.now() })
