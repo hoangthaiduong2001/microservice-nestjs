@@ -1,3 +1,3 @@
-import { CreateProductRequestDto } from '../../gateway/product/product-request.dto';
+import { CreateProductRequestDto } from '../../gateway/product/';
 
 export type CreateProductTcpRequest = CreateProductRequestDto;
