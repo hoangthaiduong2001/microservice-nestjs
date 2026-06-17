@@ -1,7 +1,8 @@
 import { TCP_REQUEST_MESSAGE } from '@common/constants/enum/tcp-request-message.enum';
+import { ProcessId } from '@common/decorators/processId.decorator';
 import { RequestParams } from '@common/decorators/request-param.decorator';
 import { TcpLoggingInterceptor } from '@common/interceptors/tcpLogging.interceptor';
-import { LoginTcpRequest, LoginTcpResponse } from '@common/interfaces/tcp/authorizer';
+import { AuthorizeResponse, LoginTcpRequest, LoginTcpResponse } from '@common/interfaces/tcp/authorizer';
 import { Response } from '@common/interfaces/tcp/common/response.interface';
 import { Controller, UseInterceptors } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
@@ -18,9 +19,9 @@ export class AuthorizerController {
     return Response.success<LoginTcpResponse>(result);
   }
 
-  //   @MessagePattern(TCP_REQUEST_MESSAGE.AUTHORIZER.VERIFY_USER_TOKEN)
-  //   async verifyUserToken(@RequestParams() token: string) {
-  //     const result = await this.authorizerService.verifyUserToken(token);
-  //     return Response.success<AuthorizeResponse>(result);
-  //   }
+  @MessagePattern(TCP_REQUEST_MESSAGE.AUTHORIZER.VERIFY_USER_TOKEN)
+  async verifyUserToken(@RequestParams() token: string, @ProcessId() processId: string) {
+    const result = await this.authorizerService.verifyUserToken(token, processId);
+    return Response.success<AuthorizeResponse>(result);
+  }
 }

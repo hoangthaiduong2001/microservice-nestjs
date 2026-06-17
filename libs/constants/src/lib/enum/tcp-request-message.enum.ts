@@ -1,8 +1,10 @@
 enum INVOICE {
   CREATE = 'invoice.create',
-  GET_BY_ID = 'get_by_id',
-  UPDATE_BY_ID = 'update_by_id',
-  DELETE_BY_ID = 'delete_by_id',
+  GET_BY_ID = 'invoice.get_by_id',
+  UPDATE_BY_ID = 'invoice.update_by_id',
+  DELETE_BY_ID = 'invoice.delete_by_id',
+  SEND = 'invoice.send',
+  UPDATE_INVOICE_PAID = 'invoice.update_invoice_paid',
 }
 
 enum PRODUCT {
@@ -13,14 +15,24 @@ enum PRODUCT {
 enum USER {
   CREATE = 'user.create',
   GET_ALL = 'user.get_all',
+  GET_BY_USER_ID = 'user.get_by_user_id',
 }
 
 enum KEYCLOAK {
-  CREATE_USER = 'keycloak.crate_user',
+  CREATE_USER = 'keycloak.create_user',
 }
 
 enum AUTHORIZER {
   LOGIN = 'authorizer.login',
+  VERIFY_USER_TOKEN = 'authorizer.verify_user_token',
+}
+
+enum PDF_GENERATOR {
+  CREATE_INVOICE_PDF = 'pdf_generator.create_invoice_pdf',
+}
+
+enum MEDIA {
+  UPLOAD_FILE = 'media.upload_file',
 }
 
 export const TCP_REQUEST_MESSAGE = {
@@ -29,4 +41,6 @@ export const TCP_REQUEST_MESSAGE = {
   USER,
   KEYCLOAK,
   AUTHORIZER,
+  PDF_GENERATOR,
+  MEDIA,
 };

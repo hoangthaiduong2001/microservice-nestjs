@@ -1,0 +1,57 @@
+import { TCP_SERVICES } from '@common/configuration/lib/tcp.config';
+import { MetaDataKeys } from '@common/constants/common.constant';
+import { TCP_REQUEST_MESSAGE } from '@common/constants/enum/tcp-request-message.enum';
+import { AuthorizeResponse } from '@common/interfaces/tcp/authorizer';
+import { TcpClient } from '@common/interfaces/tcp/common/tcp-client.interface';
+import { getAccessToken, setUserData } from '@common/utils/request.util';
+import { CanActivate, ExecutionContext, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { firstValueFrom, map, Observable } from 'rxjs';
+
+@Injectable()
+export class UserGuard implements CanActivate {
+  private readonly logger = new Logger(UserGuard.name);
+
+  constructor(
+    private readonly reflector: Reflector,
+    @Inject(TCP_SERVICES.AUTHORIZER_SERVICE) private readonly authorizerClient: TcpClient,
+  ) {}
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+    const authOption = this.reflector.get<{ secured: boolean }>(MetaDataKeys.SECURED, context.getHandler());
+
+    const req = context.switchToHttp().getRequest();
+
+    if (!authOption?.secured) {
+      return true;
+    }
+    return this.verifyToken(req);
+  }
+
+  private async verifyToken(req: any): Promise<boolean> {
+    try {
+      const token = getAccessToken(req);
+      const processId = req[MetaDataKeys.PROCESS_ID];
+
+      const result = await this.verifyUserToken(token, processId);
+      if (!result?.valid) {
+        throw new UnauthorizedException('Token is invalid');
+      }
+      setUserData(req, result);
+      return true;
+    } catch (error) {
+      this.logger.error({ error });
+      throw new UnauthorizedException('Token is invalid');
+    }
+  }
+
+  private async verifyUserToken(token: string, processId: string) {
+    return firstValueFrom(
+      this.authorizerClient
+        .send<AuthorizeResponse, string>(TCP_REQUEST_MESSAGE.AUTHORIZER.VERIFY_USER_TOKEN, {
+          data: token,
+          processId,
+        })
+        .pipe(map((data) => data.data)),
+    );
+  }
+}

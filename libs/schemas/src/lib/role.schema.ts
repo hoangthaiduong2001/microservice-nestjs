@@ -9,7 +9,7 @@ export class Role extends BaseSchema {
   name: ROLE;
 
   @Prop({ type: [String], enum: PERMISSION, default: [] })
-  permission: ROLE;
+  permission: PERMISSION[];
 
   @Prop({ type: String })
   description: string;

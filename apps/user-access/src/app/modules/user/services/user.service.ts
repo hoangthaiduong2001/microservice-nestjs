@@ -4,7 +4,7 @@ import { TCP_REQUEST_MESSAGE } from '@common/constants/enum/tcp-request-message.
 import { CreateKeycloakUserTcpReq } from '@common/interfaces/tcp/authorizer';
 import { TcpClient } from '@common/interfaces/tcp/common/tcp-client.interface';
 import { CreateUserTcpRequest } from '@common/interfaces/tcp/user';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { firstValueFrom, map } from 'rxjs';
 import { createUserRequestMapping } from '../mappers';
 import { UserRepository } from '../repositories/user.repository';
@@ -40,5 +40,15 @@ export class UserService {
         })
         .pipe(map((data) => data.data)),
     );
+  }
+
+  async getUserByUserId(userId: string) {
+    const user = await this.userRepository.getByUserId(userId);
+
+    if (!user) {
+      throw new NotFoundException(ERROR_CODE.USER_NOT_FOUND);
+    }
+
+    return user;
   }
 }
