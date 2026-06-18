@@ -1,4 +1,5 @@
 import { TCP_SERVICES, TcpProvider } from '@common/configuration/lib/tcp.config';
+import { PermissionGuard } from '@common/guards/permission.guard';
 import { UserGuard } from '@common/guards/user.guard';
 import { ExceptionInterceptor } from '@common/interceptors/exception.interceptor';
 import { LoggerMiddleware } from '@common/middlewares/logger.middleware';
@@ -25,6 +26,7 @@ import { UserModule } from './modules/user/user.module';
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ExceptionInterceptor },
     { provide: APP_GUARD, useClass: UserGuard },
+    { provide: APP_GUARD, useClass: PermissionGuard },
   ],
 })
 export class AppModule {

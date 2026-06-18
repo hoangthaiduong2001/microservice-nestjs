@@ -1,6 +1,8 @@
 import { TCP_SERVICES } from '@common/configuration/lib/tcp.config';
+import { PERMISSION } from '@common/constants/enum/role.enum';
 import { TCP_REQUEST_MESSAGE } from '@common/constants/enum/tcp-request-message.enum';
 import { Authorization } from '@common/decorators/authorizer.decorator';
+import { Permissions } from '@common/decorators/permission.decorator';
 import { ProcessId } from '@common/decorators/processId.decorator';
 import { CreateInvoiceRequestDto, InvoiceResponseDto } from '@common/interfaces/gateway/invoice';
 import { ResponseDto } from '@common/interfaces/gateway/response.interface';
@@ -18,6 +20,7 @@ export class InvoiceController {
   @ApiResponse({ type: ResponseDto<InvoiceResponseDto> })
   @ApiOperation({ summary: 'Create a new invoice' })
   @Authorization({ secured: true })
+  @Permissions([PERMISSION.INVOICE_CREATE, PERMISSION.INVOICE_GET_BY_ID])
   create(@Body() body: CreateInvoiceRequestDto, @ProcessId() processId: string) {
     return this.invoiceClient
       .send<InvoiceTcpResponse, CreateInvoiceTcpRequest>(TCP_REQUEST_MESSAGE.INVOICE.CREATE, { data: body, processId })
