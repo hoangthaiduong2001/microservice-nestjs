@@ -4,8 +4,11 @@ import { TCP_REQUEST_MESSAGE } from '@common/constants/enum/tcp-request-message.
 import { AuthorizeResponse } from '@common/interfaces/tcp/authorizer';
 import { TcpClient } from '@common/interfaces/tcp/common/tcp-client.interface';
 import { getAccessToken, setUserData } from '@common/utils/request.util';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { CanActivate, ExecutionContext, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Cache } from 'cache-manager';
+import { createHash } from 'crypto';
 import { firstValueFrom, map, Observable } from 'rxjs';
 
 @Injectable()
@@ -15,6 +18,7 @@ export class UserGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     @Inject(TCP_SERVICES.AUTHORIZER_SERVICE) private readonly authorizerClient: TcpClient,
+    @Inject(CACHE_MANAGER) private changeManager: Cache,
   ) {}
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const authOption = this.reflector.get<{ secured: boolean }>(MetaDataKeys.SECURED, context.getHandler());
@@ -30,13 +34,22 @@ export class UserGuard implements CanActivate {
   private async verifyToken(req: any): Promise<boolean> {
     try {
       const token = getAccessToken(req);
+      const cacheKey = this.generateTokenCacheKey(token);
       const processId = req[MetaDataKeys.PROCESS_ID];
+
+      const cacheData = await this.changeManager.get<AuthorizeResponse>(cacheKey);
+
+      if (cacheData) {
+        setUserData(req, cacheData);
+        return true;
+      }
 
       const result = await this.verifyUserToken(token, processId);
       if (!result?.valid) {
         throw new UnauthorizedException('Token is invalid');
       }
       setUserData(req, result);
+      this.changeManager.set(cacheKey, result, 30 * 60 * 1000);
       return true;
     } catch (error) {
       this.logger.error({ error });
@@ -53,5 +66,10 @@ export class UserGuard implements CanActivate {
         })
         .pipe(map((data) => data.data)),
     );
+  }
+
+  generateTokenCacheKey(token: string): string {
+    const hash = createHash('sha256').update(token).digest('hex');
+    return `user-token:${hash}`;
   }
 }

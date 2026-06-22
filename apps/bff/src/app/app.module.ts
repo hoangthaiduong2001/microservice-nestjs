@@ -1,3 +1,4 @@
+import { RedisProvider } from '@common/configuration/lib/redis.config';
 import { TCP_SERVICES, TcpProvider } from '@common/configuration/lib/tcp.config';
 import { PermissionGuard } from '@common/guards/permission.guard';
 import { UserGuard } from '@common/guards/user.guard';
@@ -21,6 +22,7 @@ import { UserModule } from './modules/user/user.module';
     UserModule,
     AuthorizerModule,
     ClientsModule.registerAsync([TcpProvider(TCP_SERVICES.AUTHORIZER_SERVICE)]),
+    RedisProvider,
   ],
   controllers: [],
   providers: [
@@ -33,6 +35,6 @@ export class AppModule {
   static CONFIGURATION: TConfiguration = CONFIGURATION;
 
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('*path');
   }
 }
