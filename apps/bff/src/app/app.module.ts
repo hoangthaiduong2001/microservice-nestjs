@@ -1,3 +1,4 @@
+import { GRPC_SERVICES, GrpcProvider } from '@common/configuration/lib/grpc.config';
 import { RedisProvider } from '@common/configuration/lib/redis.config';
 import { TCP_SERVICES, TcpProvider } from '@common/configuration/lib/tcp.config';
 import { ThrottlerProvider } from '@common/configuration/lib/throttler.config';
@@ -26,6 +27,7 @@ import { UserModule } from './modules/user/user.module';
     ClientsModule.registerAsync([TcpProvider(TCP_SERVICES.AUTHORIZER_SERVICE)]),
     RedisProvider,
     ThrottlerProvider,
+    ClientsModule.registerAsync([GrpcProvider(GRPC_SERVICES.AUTHORIZER_SERVICE)]),
   ],
   controllers: [],
   providers: [

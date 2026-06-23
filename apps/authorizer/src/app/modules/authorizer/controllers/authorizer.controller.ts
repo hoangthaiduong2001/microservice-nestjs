@@ -1,5 +1,4 @@
 import { TCP_REQUEST_MESSAGE } from '@common/constants/enum/tcp-request-message.enum';
-import { ProcessId } from '@common/decorators/processId.decorator';
 import { RequestParams } from '@common/decorators/request-param.decorator';
 import { TcpLoggingInterceptor } from '@common/interceptors/tcpLogging.interceptor';
 import { AuthorizeResponse, LoginTcpRequest, LoginTcpResponse } from '@common/interfaces/tcp/authorizer';
@@ -20,8 +19,8 @@ export class AuthorizerController {
   }
 
   @MessagePattern(TCP_REQUEST_MESSAGE.AUTHORIZER.VERIFY_USER_TOKEN)
-  async verifyUserToken(@RequestParams() token: string, @ProcessId() processId: string) {
-    const result = await this.authorizerService.verifyUserToken(token, processId);
+  async verifyUserToken(@RequestParams() token: string) {
+    const result = await this.authorizerService.verifyUserToken(token);
     return Response.success<AuthorizeResponse>(result);
   }
 }

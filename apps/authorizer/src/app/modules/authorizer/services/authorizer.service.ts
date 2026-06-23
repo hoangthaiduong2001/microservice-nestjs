@@ -1,5 +1,6 @@
 import { TCP_SERVICES } from '@common/configuration/lib/tcp.config';
 import { TCP_REQUEST_MESSAGE } from '@common/constants/enum/tcp-request-message.enum';
+import { UserAccessService } from '@common/interfaces/grpc/user-access';
 import { AuthorizeResponse, LoginTcpRequest } from '@common/interfaces/tcp/authorizer';
 import { TcpClient } from '@common/interfaces/tcp/common/tcp-client.interface';
 import { Role } from '@common/schemas/role.schema';
@@ -14,6 +15,7 @@ import { KeycloakHttpService } from '../../keycloak/services/keycloak-http.servi
 @Injectable()
 @Injectable()
 export class AuthorizerService {
+  private userAccessService: UserAccessService;
   private readonly logger = new Logger(AuthorizerService.name);
   private jwksClient: JwksClient;
   constructor(
@@ -41,7 +43,36 @@ export class AuthorizerService {
     return { accessToken, refreshToken };
   }
 
-  async verifyUserToken(token: string, processId: string): Promise<AuthorizeResponse> {
+  // async verifyUserToken(token: string, processId: string): Promise<AuthorizeResponse> {
+  //   const decoded = jwt.decode(token, { complete: true }) as Jwt;
+  //   if (!decoded || !decoded.header || !decoded.header.kid) {
+  //     throw new UnauthorizedException('Invalid token structure');
+  //   }
+
+  //   try {
+  //     const key = await this.jwksClient.getSigningKey(decoded.header.kid);
+  //     const publicKey = key.getPublicKey();
+  //     const payload = jwt.verify(token, publicKey, { algorithms: ['RS256'] }) as JwtPayload;
+  //     this.logger.debug({ payload });
+
+  //     const user = await this.userValidation(String(payload.sub), processId);
+
+  //     return {
+  //       valid: true,
+  //       metadata: {
+  //         jwt: payload,
+  //         permissions: (user.role as unknown as Role[]).map((role) => role.permission).flat(),
+  //         user,
+  //         userId: user.id,
+  //       },
+  //     };
+  //   } catch (error) {
+  //     this.logger.error({ error });
+  //     throw new UnauthorizedException('Invalid token');
+  //   }
+  // }
+
+  async verifyUserToken(token: string): Promise<AuthorizeResponse> {
     const decoded = jwt.decode(token, { complete: true }) as Jwt;
     if (!decoded || !decoded.header || !decoded.header.kid) {
       throw new UnauthorizedException('Invalid token structure');
@@ -51,9 +82,8 @@ export class AuthorizerService {
       const key = await this.jwksClient.getSigningKey(decoded.header.kid);
       const publicKey = key.getPublicKey();
       const payload = jwt.verify(token, publicKey, { algorithms: ['RS256'] }) as JwtPayload;
-      this.logger.debug({ payload });
 
-      const user = await this.userValidation(String(payload.sub), processId);
+      const user = await this.userValidation(String(payload.sub));
 
       return {
         valid: true,
@@ -81,8 +111,8 @@ export class AuthorizerService {
     );
   }
 
-  private async userValidation(userId: string, processId: string) {
-    const user = await this.getUserByUserId(userId, processId);
+  private async userValidation(userId: string) {
+    const user = await firstValueFrom(this.userAccessService.getByUserId({ userId }).pipe(map((data) => data.data)));
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
