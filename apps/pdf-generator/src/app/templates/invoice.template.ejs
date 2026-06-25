@@ -70,8 +70,37 @@
   <body>
     <div class="header">
       <h1>Invoice</h1>
-      <div><strong>Invoice</strong> <%= invoice.id %></div>
+      <div><strong>Client:</strong> <%= client.name %></div>
+      <div><strong>Email:</strong> <%= client.email %></div>
     </div>
 
+    <div class="status">Status: <%= status %></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th class="right">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% items.forEach(item => { %>
+        <tr>
+          <td><%= item.name %></td>
+          <td><%= item.quantity %></td>
+          <td class="right">$<%= item.unitPrice.toFixed(2) %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div class="totals right">
+      <div><strong>Subtotal:</strong> $<%= subtotal.toFixed(2) %></div>
+      <div><strong>VAT:</strong> $<%= vatAmount.toFixed(2) %></div>
+      <div><strong>Total:</strong> <strong>$<%= totalAmount.toFixed(2) %></strong></div>
+    </div>
+
+    <div class="footer">Thank you for your business!</div>
   </body>
 </html>
